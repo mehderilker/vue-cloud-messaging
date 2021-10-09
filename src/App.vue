@@ -7,30 +7,43 @@
 
 <script>
 import FirebaseComp from './components/Firebase.vue'
-import { getMessaging, getToken,onMessage } from "firebase/messaging";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 export default {
   name: 'App',
+
+  data(){
+    return{
+      messaging: getMessaging()
+    }
+  },
+
   components: {
     FirebaseComp
+  },
+
+  created(){
+    this.getTokenAndShowMessage()
+  },
+
+  methods:{
+    getTokenAndShowMessage(){
+      getToken(this.messaging, { vapidKey: "BDIKLcxfFtMWE5gqB4fH9NK1k9wBzGzmmTTeb2ykU9sN56Fy2EHwXKTY1o6QmsAR-vpTYdHUIL5qCPN2x3ZWRpY"}).then((currentToken) => {
+          if (currentToken) {
+            console.log("Current Token",currentToken)
+          } else {
+            console.log('No registration token available. Request permission to generate one.');
+          }
+        }).catch((err) => {
+          console.log('An error occurred while retrieving token. ', err);
+        });
+        onMessage(this.messaging, (payload) => {
+          alert(payload.notification.title+ "\n" +payload.notification.body) 
+        });
+    }
+
   }
 }
-
-const messaging = getMessaging();
-
-getToken(messaging, { vapidKey: 'BDIKLcxfFtMWE5gqB4fH9NK1k9wBzGzmmTTeb2ykU9sN56Fy2EHwXKTY1o6QmsAR-vpTYdHUIL5qCPN2x3ZWRpY' }).then((currentToken) => {
-  if (currentToken) {
-    console.log("Current Token",currentToken)
-  } else {
-    console.log('No registration token available. Request permission to generate one.');
-  }
-}).catch((err) => {
-  console.log('An error occurred while retrieving token. ', err);
-});
-
-onMessage(messaging, (payload) => {
-  alert(payload.notification.title+ "\n" +payload.notification.body) 
-});
 
 </script>
 
